@@ -1,38 +1,60 @@
+# Neutra
 
 ## About
 
-**Neutra** is a personal operating system project created by one person with the goal of building a unique operating system with custom features and low-level technologies.
+**Neutra** is a personal operating system project developed by a single developer. Its goal is to explore operating system development by building a unique operating system from scratch while learning how computers work at the lowest level.
 
-The project focuses on understanding how operating systems work by developing components such as boot processes, kernels, memory management, drivers, and system-level features.
+The project focuses on implementing core operating system components such as the boot process, kernel, memory management, drivers, scheduling, and other low-level system features.
 
-Neutra uses the **Limine bootloader** to handle the boot process and aims to support features such as automatically launching Assembly-based programs during startup while still allowing users to return to the main OS environment.
+Neutra uses the **Limine Bootloader** and is designed to support unique features, including the ability to automatically launch Assembly-based programs during startup while allowing users to return to the main operating system environment.
+
+> **Note:** Neutra is currently in early development and is intended for educational and experimental purposes.
+
+---
 
 ## Features
 
-Current and planned features:
+### Current
 
-* Custom kernel development
-* Limine bootloader integration
-* x86-64 support
-* Low-level programming with C and Assembly
-* Custom memory management
-* Hardware interaction
-* Driver development
-* Custom security features (NSCB - Neutra Secure Core Boot)
-* Assembly-based startup applications
+- Custom x86-64 kernel
+- Limine Bootloader integration
+- C and x86-64 Assembly codebase
+- Low-level hardware interaction
+- Modular kernel architecture
+
+### Planned
+
+- Custom memory management
+- Driver framework
+- FAT32 file system support
+- User-space applications
+- Networking
+- Graphics system
+- Graphical mode
+- Improved security
+- NSCB (Neutra Secure Core Boot)
+- NPS (Neutra Priority Scheduler)
+- NKP (Neutra Kernel Panic)
+- Watchdog support
+- Assembly-based startup applications
+
+---
 
 ## Technologies
 
 Neutra is built using:
 
-* **C** - Kernel and system development
-* **Assembly (x86-64)** - Low-level operations and startup code
-* **Limine** - Bootloader
-* **Make** - Build system
+- **C** — Kernel and system development
+- **x86-64 Assembly** — Low-level code and boot process
+- **Limine Bootloader** — System bootloader
+- **GNU Make** — Build system
+- **QEMU** — Virtual machine for testing
+
+---
 
 ## Project Structure
 
-
+```text
 Neutra/
 ├── boot/
 │   └── boot.asm
@@ -46,72 +68,83 @@ Neutra/
 ├── Makefile
 ├── LICENSE
 └── README.md
+```
 
+---
 
 ## NSCB
 
-**NSCB (Neutra Secure Core Boot)** is a planned security layer for Neutra.
+**NSCB (Neutra Secure Core Boot)** is a planned security component designed to verify critical system components before the kernel starts.
 
-Its purpose is to create a verified boot process by checking important system components before starting the kernel.
+Planned boot sequence:
 
-Example boot chain:
-
-
+```text
 Firmware
-   |
-   v
+   │
+   ▼
 Limine Bootloader
-   |
-   v
+   │
+   ▼
 NSCB
-   |
-   v
+   │
+   ▼
 Neutra Kernel
+```
 
+---
 
 ## Building
 
-Requirements:
+### Requirements
 
-* GCC cross compiler
-* NASM
-* Make
-* QEMU (for testing)
+- GCC cross compiler
+- NASM
+- GNU Make
+- QEMU
 
-Build:
+### Build
 
-bash:
+```bash
 make
+```
 
+### Run
 
-Run with QEMU:
-
-bash:
+```bash
 make run
+```
 
+---
 
 ## Goals
 
-The main goal of Neutra is to explore operating system development and create a unique OS architecture while learning how computers work at the lowest level.
+The primary goal of Neutra is to learn operating system development by implementing every major component from scratch while creating a unique operating system architecture.
 
-Future goals include:
+Future development includes:
 
-* Better hardware support
-* User space applications
-* File system support
-* Networking
-* Graphics system
-* Improved security
-* Graphical Mode
-* NSCB
+- Better hardware support
+- User-space applications
+- FAT32 file system support
+- Networking
+- Graphics system
+- Improved security
+- Graphical mode
+- Virtual memory
+- Process management
+- NSCB (Neutra Secure Core Boot)
+- NPS (Neutra Priority Scheduler)
+- NKP (Neutra Kernel Panic)
+- Watchdog support
+- Additional drivers and system services
+
+---
 
 ## Contributing
 
-Neutra is currently a personal development project, but contributions, ideas, and feedback are welcome.
+Neutra is currently a personal project, but contributions, suggestions, ideas, bug reports, and feedback are always welcome.
+
+---
 
 ## License
 
-Neutra is licensed under the GPL-3.0 License.
-
-```
-```
+This project is licensed under the **GNU General Public License v3.0 (GPL-3.0)**.
