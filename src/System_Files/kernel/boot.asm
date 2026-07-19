@@ -1,32 +1,24 @@
+extern kmain
 global _start
 
-extern kmain
-extern nscb_init
+section .multiboot
+align 4
+    dd 0x1BADB002
+    dd 0x00000003
+    dd -(0x1BADB002 + 0x00000003)
 
 section .text
-
 _start:
-    mov rsp, stack + 4096
-
-    call nscb_init
-
-    cmp eax, 1
-    jne .security_failed
-
+    mov %ebx, %edi
+    lea rsp, [rel stack_top]
+    xor rbp, rbp
     call kmain
-
-.hang:
     cli
     hlt
-    jmp .hang
-
-
-.security_failed:
-    cli
-    hlt
-    jmp .security_failed
-
+    jmp _start
 
 section .bss
-stack:
-    resb 4096
+    align 4096
+    stack:
+        resb 32768
+    stack_top:
