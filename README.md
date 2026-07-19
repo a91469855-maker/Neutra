@@ -1,20 +1,20 @@
 # NEUTRA OS - Complete Development Roadmap
 
-**Status:** Phase 1 - Text Mode Foundation (Active Development)  
-**Last Updated:** July 2026  
-**Bootloader:** GRUB (Multiboot)  
-**Target:** Windows 95-Style Desktop OS
+Status: Phase 1 - Text Mode Foundation (Active Development)
+Last Updated: July 2026
+Bootloader: GRUB (Multiboot)
+Target: Windows 95-Style Desktop OS
 
 ---
 
 # TABLE OF CONTENTS
 
-1. [Overview](#overview)
-2. [Phase 1: Text Mode Foundation](#phase-1-text-mode-foundation)
-3. [Phase 2: Extended Text Mode](#phase-2-extended-text-mode)
-4. [Phase 3: Graphics Mode](#phase-3-graphics-mode)
-5. [Phase 4: Advanced Features](#phase-4-advanced-features)
-6. [Build & Run](#build--run)
+1. Overview
+2. Phase 1: Text Mode Foundation
+3. Phase 2: Extended Text Mode
+4. Phase 3: Graphics Mode
+5. Phase 4: Advanced Features
+6. Build & Run
 
 ---
 
@@ -22,10 +22,10 @@
 
 Neutra OS is a from-scratch desktop operating system built in C and x86-64 Assembly. The development follows a phased approach:
 
-- **Phase 1 (Current):** Basic Text Mode Output, GRUB Boot, Multiboot Info
-- **Phase 2:** Window System, Text GUI, Menu Bar, Taskbar
-- **Phase 3:** Graphics Mode (1024x768), Pixel Drawing, Advanced GUI
-- **Phase 4:** Memory Management, Process Control, File System, Networking
+Phase 1 (Current): Basic Text Mode Output, GRUB Boot, Multiboot Info
+Phase 2: Window System, Text GUI, Menu Bar, Taskbar
+Phase 3: Graphics Mode (1024x768), Pixel Drawing, Advanced GUI
+Phase 4: Memory Management, Process Control, File System, Networking
 
 Each phase is fully functional and bootable before moving to the next.
 
@@ -33,57 +33,57 @@ Each phase is fully functional and bootable before moving to the next.
 
 # PHASE 1: TEXT MODE FOUNDATION
 
-**Duration:** 1-2 Weeks  
-**Status:** ✓ IN PROGRESS  
-**Key Achievement:** Bootable Kernel with Text Output
+Duration: 1-2 Weeks
+Status: IN PROGRESS
+Key Achievement: Bootable Kernel with Text Output
 
 ## 1.1 Bootloader Integration
 
-### Requirements
+Requirements:
 - GRUB Multiboot Compliance
 - Multiboot Header in boot.asm
 - Entry Point at _start
 - Stack Setup
 - Pass Multiboot Info to kernel
 
-### Implementation
+Implementation
 
-**boot.asm:**
+boot.asm:
 ```asm
 extern kmain
 global _start
 
 section .multiboot
 align 4
-    dd 0x1BADB002                           ; Multiboot Magic
-    dd 0x00000003                           ; Flags
-    dd -(0x1BADB002 + 0x00000003)          ; Checksum
+    dd 0x1BADB002
+    dd 0x00000003
+    dd -(0x1BADB002 + 0x00000003)
 
 section .text
 _start:
-    mov %ebx, %edi                          ; Multiboot info to %edi (kmain param)
-    lea rsp, [rel stack_top]                ; Setup stack
-    xor rbp, rbp                            ; Clear frame pointer
+    mov %ebx, %edi
+    lea rsp, [rel stack_top]
+    xor rbp, rbp
     
-    call kmain                              ; Call kernel
+    call kmain
     
-    cli                                     ; Disable interrupts
-    hlt                                     ; Halt CPU
-    jmp _start                              ; Infinite loop
+    cli
+    hlt
+    jmp _start
 
 section .bss
     align 4096
     stack:
-        resb 32768                          ; 32KB stack
+        resb 32768
     stack_top:
 ```
 
-### Linker Script (linker.ld)
+Linker Script (linker.ld):
 ```
 ENTRY(_start)
 
 SECTIONS {
-    . = 0x100000;  ; Load at 1MB (standard for Multiboot)
+    . = 0x100000;
     
     .text : {
         *(.text)
@@ -107,7 +107,7 @@ SECTIONS {
 }
 ```
 
-### GRUB Configuration (iso/boot/grub/grub.cfg)
+GRUB Configuration (iso/boot/grub/grub.cfg):
 ```
 set default=0
 set timeout=5
@@ -121,7 +121,7 @@ menuentry "Neutra OS" {
 
 ## 1.2 Multiboot Info Parsing
 
-### Data Structure
+Data Structure:
 ```c
 struct multiboot_info {
     uint32_t flags;
@@ -154,19 +154,15 @@ struct multiboot_info {
 } __attribute__((packed));
 ```
 
-### Usage in kernel.c
+Usage in kernel.c:
 ```c
 void kmain(struct multiboot_info *mbi) {
-    // Check if valid
     if (mbi == NULL) {
         while(1) __asm__ volatile("hlt");
     }
     
-    // Access boot info
     uint32_t mem_upper = mbi->mem_upper;
     uint32_t bootloader = mbi->boot_loader_name;
-    
-    // Continue kernel init
 }
 ```
 
@@ -174,7 +170,7 @@ void kmain(struct multiboot_info *mbi) {
 
 ## 1.3 Text Mode Output (VGA 0xB8000)
 
-### Text Screen Manager
+Text Screen Manager:
 ```c
 #define TEXT_BUFFER    0xb8000
 #define TEXT_WIDTH     80
@@ -190,7 +186,6 @@ typedef struct {
 
 text_screen_t screen;
 
-// Color Codes (Background << 4 | Foreground)
 #define COLOR_BLACK    0x00
 #define COLOR_BLUE     0x01
 #define COLOR_GREEN    0x02
@@ -264,7 +259,7 @@ void text_putint(int num, uint8_t color) {
 }
 ```
 
-### Kernel Entry
+Kernel Entry:
 ```c
 void kmain(struct multiboot_info *mbi) {
     text_init();
@@ -289,7 +284,7 @@ void kmain(struct multiboot_info *mbi) {
 
 ## 1.4 Build System
 
-### Makefile
+Makefile:
 ```makefile
 CC = gcc
 LD = ld
@@ -350,13 +345,13 @@ clean:
 
 # PHASE 2: EXTENDED TEXT MODE
 
-**Duration:** 2-4 Weeks  
-**Status:** ⏳ PLANNED  
-**Goal:** Windows 95-Style Text GUI
+Duration: 2-4 Weeks
+Status: PLANNED
+Goal: Windows 95-Style Text GUI
 
 ## 2.1 Window Manager
 
-### Window Structure
+Window Structure:
 ```c
 typedef struct {
     uint32_t x, y;
@@ -380,12 +375,11 @@ void window_create(uint32_t x, uint32_t y, uint32_t w, uint32_t h,
     win->width = w;
     win->height = h;
     win->title = title;
-    win->title_color = 0x70;  // Inverted
-    win->bg_color = 0x0F;      // White on black
+    win->title_color = 0x70;
+    win->bg_color = 0x0F;
 }
 
 void window_draw_border(window_t *win) {
-    // Draw corners and edges
     for (uint32_t i = 0; i < win->width; i++) {
         text_putchar_at(win->x + i, win->y, '*', 0x0F);
         text_putchar_at(win->x + i, win->y + win->height - 1, '*', 0x0F);
@@ -398,12 +392,10 @@ void window_draw_border(window_t *win) {
 }
 
 void window_draw_titlebar(window_t *win) {
-    // Draw titlebar with title text
     for (uint32_t i = 0; i < win->width; i++) {
         text_putchar_at(win->x + i, win->y + 1, ' ', win->title_color);
     }
     
-    // Center title text
     uint32_t title_x = win->x + (win->width - strlen(win->title)) / 2;
     for (const char *c = win->title; *c; c++) {
         text_putchar_at(title_x++, win->y + 1, *c, win->title_color);
@@ -424,7 +416,7 @@ void windows_render_all(void) {
 
 ## 2.2 Menu Bar & Taskbar
 
-### Menu Bar
+Menu Bar:
 ```c
 #define MENU_ITEMS 3
 
@@ -451,10 +443,9 @@ void menubar_draw(void) {
 }
 ```
 
-### Taskbar
+Taskbar:
 ```c
 void taskbar_draw(void) {
-    // Draw taskbar at bottom (line 24)
     for (uint32_t i = 0; i < TEXT_WIDTH; i++) {
         text_putchar_at(i, TEXT_HEIGHT - 1, ' ', 0x07);
     }
@@ -466,7 +457,7 @@ void taskbar_draw(void) {
 
 ## 2.3 Widget System
 
-### Button Widget
+Button Widget:
 ```c
 typedef struct {
     uint32_t x, y;
@@ -476,13 +467,11 @@ typedef struct {
 } button_t;
 
 void button_draw(button_t *btn) {
-    // Draw button border
     for (uint32_t i = 0; i < btn->width; i++) {
         text_putchar_at(btn->x + i, btn->y, ' ', 0x70);
         text_putchar_at(btn->x + i, btn->y + btn->height - 1, ' ', 0x70);
     }
     
-    // Draw button label (centered)
     uint32_t label_x = btn->x + (btn->width - strlen(btn->label)) / 2;
     text_puts_at(label_x, btn->y, btn->label, 0x70);
 }
@@ -492,13 +481,13 @@ void button_draw(button_t *btn) {
 
 # PHASE 3: GRAPHICS MODE
 
-**Duration:** 4-8 Weeks  
-**Status:** ⏳ PLANNED  
-**Goal:** 1024x768 32-bit Graphics, Pixel Drawing
+Duration: 4-8 Weeks
+Status: PLANNED
+Goal: 1024x768 32-bit Graphics, Pixel Drawing
 
 ## 3.1 GRUB Graphics Mode Setup
 
-### Updated GRUB Config
+Updated GRUB Config:
 ```
 set default=0
 set timeout=5
@@ -516,7 +505,7 @@ menuentry "Neutra OS" {
 
 ## 3.2 Framebuffer Management
 
-### Framebuffer Structure
+Framebuffer Structure:
 ```c
 typedef struct {
     uint32_t *pixels;
@@ -531,7 +520,7 @@ framebuffer_t fb;
 
 void fb_init(struct multiboot_info *mbi) {
     if (!(mbi->flags & (1 << 12))) {
-        return;  // No graphics info
+        return;
     }
     
     fb.pixels = (uint32_t *)mbi->fb_addr;
@@ -564,7 +553,7 @@ void fb_clear(uint32_t color) {
 
 ## 3.3 Graphics GUI Elements
 
-### Window (Graphics)
+Window (Graphics):
 ```c
 typedef struct {
     uint32_t x, y, width, height;
@@ -575,14 +564,11 @@ typedef struct {
 } gfx_window_t;
 
 void gfx_window_draw(gfx_window_t *win) {
-    // Draw titlebar
     fb_rect(win->x, win->y, win->width, 20, win->title_color);
     
-    // Draw border
     fb_rect(win->x, win->y + 20, win->width, win->height - 20, 
             win->bg_color);
     
-    // Draw border lines
     fb_rect(win->x, win->y, 1, win->height, win->border_color);
     fb_rect(win->x + win->width - 1, win->y, 1, win->height, 
             win->border_color);
@@ -592,9 +578,7 @@ void gfx_window_draw(gfx_window_t *win) {
 ## 3.4 Font Rendering (Simple Bitmap Font)
 
 ```c
-// Simple 8x8 font glyphs
 const uint8_t font_data[256][8] = {
-    // ... font bitmap data
 };
 
 void gfx_putchar(uint32_t x, uint32_t y, char c, uint32_t color) {
@@ -622,67 +606,67 @@ void gfx_puts(uint32_t x, uint32_t y, const char *str, uint32_t color) {
 
 # PHASE 4: ADVANCED FEATURES
 
-**Duration:** 8+ Weeks  
-**Status:** ⏳ FUTURE  
+Duration: 8+ Weeks
+Status: FUTURE
 
 ## 4.1 Memory Management
 
-### Physical Memory Manager
+Physical Memory Manager:
 - Detect Available RAM from Multiboot
 - Page Frame Allocator (4KB pages)
 - Bitmap-based Free/Used tracking
 
-### Virtual Memory
+Virtual Memory:
 - Page Tables Setup
 - Virtual Address Space
 - Higher-half kernel relocation
 
 ## 4.2 Interrupt Handling
 
-### IDT Setup
+IDT Setup:
 - 256 interrupt descriptors
 - Interrupt handlers
 - Exception handling
 
-### Common Interrupts
+Common Interrupts:
 - Timer (IRQ0)
 - Keyboard (IRQ1)
 - System calls (INT 0x80)
 
 ## 4.3 Process Management
 
-### Task Structure
+Task Structure:
 ```c
 typedef struct {
     uint32_t pid;
     char name[32];
-    uint32_t state;  // RUNNING, WAITING, BLOCKED
+    uint32_t state;
     uint32_t priority;
 } task_t;
 ```
 
-### Scheduler
+Scheduler:
 - Round-robin scheduling
 - Context switching
 - Task queue management
 
 ## 4.4 File System
 
-### FAT32 Support
+FAT32 Support:
 - Partition detection
 - Directory navigation
 - File read/write operations
 
 ## 4.5 Keyboard Input
 
-### PS/2 Keyboard Driver
+PS/2 Keyboard Driver:
 - Interrupt-driven input
 - Scancode translation
 - Input buffer management
 
 ## 4.6 Networking (Long-term)
 
-### Network Stack
+Network Stack:
 - Ethernet driver
 - TCP/IP implementation
 - Socket API
@@ -691,28 +675,28 @@ typedef struct {
 
 # BUILD & RUN
 
-## Requirements
+Requirements:
 ```bash
 sudo apt-get install gcc g++ nasm grub-pc xorriso qemu-system-x86 make
 ```
 
-## Build Kernel
+Build Kernel:
 ```bash
 make clean
 make
 ```
 
-## Create Bootable ISO
+Create Bootable ISO:
 ```bash
 make iso
 ```
 
-## Run in QEMU
+Run in QEMU:
 ```bash
 make run
 ```
 
-## Debug Mode (with Serial Output)
+Debug Mode (with Serial Output):
 ```bash
 make debug
 ```
@@ -725,21 +709,21 @@ make debug
 neutra-os/
 ├── src/
 │   └── System_Files/kernel/
-│       ├── boot.asm              (Bootloader entry)
-│       ├── kernel.c              (Main kernel)
-│       ├── display.c             (Text/Graphics output)
-│       ├── memory.c              (Memory management)
-│       ├── interrupts.c          (Interrupt handling)
-│       ├── scheduler.c           (Task scheduling)
+│       ├── boot.asm
+│       ├── kernel.c
+│       ├── display.c
+│       ├── memory.c
+│       ├── interrupts.c
+│       ├── scheduler.c
 │       └── drivers/
 │           ├── keyboard.c
 │           ├── disk.c
 │           └── network.c
-├── build/                        (Compiled binaries)
-├── iso/                          (ISO filesystem)
-├── linker.ld                     (Linker script)
-├── Makefile                      (Build system)
-├── README.md                     (This file)
+├── build/
+├── iso/
+├── linker.ld
+├── Makefile
+├── README.md
 └── LICENSE
 ```
 
@@ -747,7 +731,7 @@ neutra-os/
 
 # PROGRESS TRACKING
 
-## Phase 1 Status
+Phase 1 Status:
 - [x] Boot from GRUB
 - [x] Multiboot Info parsing
 - [x] Text mode output (VGA 0xB8000)
@@ -755,7 +739,7 @@ neutra-os/
 - [ ] Scrolling support
 - [ ] Extended text attributes
 
-## Phase 2 Status
+Phase 2 Status:
 - [ ] Window system
 - [ ] Menu bar
 - [ ] Taskbar
@@ -763,7 +747,7 @@ neutra-os/
 - [ ] Text input
 - [ ] Dialog boxes
 
-## Phase 3 Status
+Phase 3 Status:
 - [ ] Graphics mode setup
 - [ ] Framebuffer initialization
 - [ ] Pixel drawing
@@ -771,7 +755,7 @@ neutra-os/
 - [ ] Bitmap font rendering
 - [ ] Window manager (graphics)
 
-## Phase 4 Status
+Phase 4 Status:
 - [ ] Physical memory manager
 - [ ] Virtual memory / Paging
 - [ ] IDT / Interrupt handling
@@ -785,25 +769,25 @@ neutra-os/
 
 # NEXT STEPS
 
-1. **Immediate (This Week)**
-   - Complete Phase 1 text mode
-   - Add scrolling support
-   - Test with various GRUB configurations
+Immediate (This Week):
+- Complete Phase 1 text mode
+- Add scrolling support
+- Test with various GRUB configurations
 
-2. **Short-term (Next 2 Weeks)**
-   - Begin Phase 2 window manager
-   - Implement basic menu system
-   - Add taskbar
+Short-term (Next 2 Weeks):
+- Begin Phase 2 window manager
+- Implement basic menu system
+- Add taskbar
 
-3. **Medium-term (1 Month)**
-   - Complete Phase 2 GUI
-   - Start Phase 3 graphics mode
-   - Implement framebuffer code
+Medium-term (1 Month):
+- Complete Phase 2 GUI
+- Start Phase 3 graphics mode
+- Implement framebuffer code
 
-4. **Long-term (3+ Months)**
-   - Complete graphics implementation
-   - Begin memory management (Phase 4)
-   - Add keyboard driver
+Long-term (3+ Months):
+- Complete graphics implementation
+- Begin memory management (Phase 4)
+- Add keyboard driver
 
 ---
 
@@ -820,8 +804,10 @@ See LICENSE file for details.
 
 ---
 
-**Current Status:** Phase 1 - Active Development  
-**Bootability:** ✓ GRUB Multiboot Compliant  
-**Display:** ✓ Text Mode (VGA 0xB8000)
+Author: NeutriexD
+Project Start: July 2026
+Last Updated: July 2026
 
----
+Current Status: Phase 1 - Active Development
+Bootability: GRUB Multiboot Compliant
+Display: Text Mode (VGA 0xB8000)
