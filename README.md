@@ -65,3 +65,7 @@ The DCE syntax is similar to assembly but with a lighter, more declarative appro
 - `program.cde` - Compiled binary (Compiled DCE)
 - `program.h` - C header file (hex dump via xxd)
 - `src/kernel/kernel_memory/` - Kernel memory location for program files
+
+## Example Pic in shell
+![Example Pic](Pic/Example_shell.png)
+
